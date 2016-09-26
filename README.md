@@ -1,8 +1,8 @@
 ## Usage
 
 ```
-python parse-edt.py --help
-Usage: parse-edt.py [OPTIONS]
+python extract-edt.py --help
+Usage: extract-edt.py [OPTIONS]
 
 Options:
   --pdf TEXT  PDF file to extract text
@@ -10,5 +10,5 @@ Options:
 ```
 
 ```
-python parse-edt.py --pdf EDT.pdf
+python extract-edt.py --pdf EDT.pdf
 ```
