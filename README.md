@@ -1,14 +1,15 @@
-## Usage
+## `ups-schedule-parser`
+
+Basic tool to download an XML schedule, parse it and format data to an `.ics` file.
+
+### Requirements
 
 ```
-python extract-edt.py --help
-Usage: extract-edt.py [OPTIONS]
-
-Options:
-  --pdf TEXT  PDF file to extract text
-  --help      Show this message and exit.
+pip install -r requirements.txt
 ```
 
+### Usage
+
 ```
-python extract-edt.py --pdf EDT.pdf
+python edt.py
 ```
