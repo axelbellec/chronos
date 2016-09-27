@@ -46,7 +46,7 @@ def main():
 
             ics_event = ICS_Event(
                 location=room,
-                summary='({}) - {}'.format(category, name),
+                summary='({}) - {} - {}'.format(category, name, group),
                 description=group,
                 dtstart=dtstart,
                 dtend=dtend
