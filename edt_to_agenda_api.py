@@ -25,19 +25,34 @@ CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 CALENDAR_ID = os.environ.get('CALENDAR_ID')
 
 XML_FILE = 'edt.xml'
+UPDATES_BACKUP = 'updates.json'
 SCOPE = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/calendar']
 NB_RESULTS = 200
 
 
 def getData():
     # Download schedule
-    download_file(URL, XML_FILE)
+    # download_file(URL, XML_FILE)
 
     # Read XML data
     xml_data = read_xml(XML_FILE)
 
     # Give it to Beautiful Soup for pretty parsing
     soup = BeautifulSoup(xml_data, "html.parser")
+
+    update_time_regex = re.compile(r'\d{2}\/\d{2}\/\d{4}\s?\d{2}:\d{2}:\d{2}')
+    update_time = update_time_regex.findall(soup.find('footer').get_text())
+
+    with open(UPDATES_BACKUP, 'r') as json_data:
+        updates = json.load(json_data)
+
+        if update_time in updates['update_time']:
+            print('Schedule has not been updated yet')
+            return
+
+    with open(UPDATES_BACKUP, 'w') as json_data:
+        updates['update_time'].append(update_time)
+        json_data.write(json.dumps(updates))
 
     # Compute a correspondance tables between 'rawweeks' and the first weekday
     dates = {span.alleventweeks.get_text(): span['date'] for span in soup.find_all('span')}
@@ -69,50 +84,52 @@ def getData():
 
         events.append(calendar_event.bloc())
 
+    print('{} events have been formatted'.format(len(events)))
     return events
 
 
 def main():
-    flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
 
     data = getData()
 
-    storage = Storage('credentials.dat')
-    credentials = storage.get()
+    if data:
+        flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
+        storage = Storage('credentials.dat')
+        credentials = storage.get()
 
-    if credentials is None or credentials.invalid:
-        credentials = tools.run_flow(flow, storage, tools.argparser.parse_args())
+        if credentials is None or credentials.invalid:
+            credentials = tools.run_flow(flow, storage, tools.argparser.parse_args())
 
-    # Create an httplib2.Http object to handle our HTTP requests, and authorize it
-    # using the credentials.authorize() function.
-    http = httplib2.Http()
-    http = credentials.authorize(http)
-    # httplib2.debuglevel = 4
+        # Create an httplib2.Http object to handle our HTTP requests, and authorize it
+        # using the credentials.authorize() function.
+        http = httplib2.Http()
+        http = credentials.authorize(http)
+        # httplib2.debuglevel = 4
 
-    service = build('calendar', 'v3', http=http)
+        service = build('calendar', 'v3', http=http)
 
-    try:
-        # Get all events
-        now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+        try:
+            # Get all events
+            now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
 
-        eventsResult = service.events().list(
-            calendarId=CALENDAR_ID, timeMin=now, maxResults=NB_RESULTS, singleEvents=True,
-            orderBy='startTime').execute()
-        events = eventsResult.get('items', [])
+            eventsResult = service.events().list(
+                calendarId=CALENDAR_ID, timeMin=now, maxResults=NB_RESULTS, singleEvents=True,
+                orderBy='startTime').execute()
+            events = eventsResult.get('items', [])
 
-        # Delete all events
-        for event in events:
-            service.events().delete(calendarId=CALENDAR_ID, eventId=event['id']).execute()
+            # Delete all events
+            for event in events:
+                service.events().delete(calendarId=CALENDAR_ID, eventId=event['id']).execute()
 
-        for new_event in data:
-            print(new_event)
-            event = service.events().insert(calendarId=CALENDAR_ID, body=new_event, sendNotifications=True).execute()
+            for new_event in data:
+                print(new_event)
+                event = service.events().insert(calendarId=CALENDAR_ID, body=new_event, sendNotifications=True).execute()
 
-    except AccessTokenRefreshError:
-        # The AccessTokenRefreshError exception is raised if the credentials
-        # have been revoked by the user or they have expired.
-        print('The credentials have been revoked or expired, please re-run'
-              'the application to re-authorize')
+        except AccessTokenRefreshError:
+            # The AccessTokenRefreshError exception is raised if the credentials
+            # have been revoked by the user or they have expired.
+            print('The credentials have been revoked or expired, please re-run'
+                  'the application to re-authorize')
 
 
 if __name__ == '__main__':
