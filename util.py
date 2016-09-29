@@ -1,3 +1,5 @@
+import json
+
 import requests
 import datetime as dt
 from tqdm import tqdm
@@ -42,3 +44,32 @@ class ICS_Event():
 
     def bloc(self):
         return '\n'.join([self.begin, self.location, self.summary, self.description, self.dtstart, self.dtend, self.end])
+
+
+class Google_Calendar_Event():
+
+    def __init__(self, location=None, summary=None, description=None, dtstart=None, dtend=None):
+        self.json = {
+            'summary': summary,
+            'location': location,
+            'description': description,
+            'start': {
+                'dateTime': dtstart,
+                'timeZone': 'Europe/Paris',
+            },
+            'end': {
+                'dateTime': dtend,
+                'timeZone': 'Europe/Paris',
+            },
+            'recurrence': [],
+            'attendees': [],
+            'reminders': {
+                'useDefault': False,
+                'overrides': [
+                    {'method': 'popup', 'minutes': 10},
+                ],
+            },
+        }
+
+    def bloc(self):
+        return self.json
