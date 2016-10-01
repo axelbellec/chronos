@@ -15,10 +15,20 @@ def download_file(url, output):
             handle.write(data)
 
 
-def read_xml(filepath):
-    with open(filepath, 'r') as f:
+def read_xml(file):
+    with open(file, 'r') as f:
         content = f.read()
     return content
+
+
+def read_json(file):
+    with open(file, 'r') as json_data:
+        return json.load(json_data)
+
+
+def write_json(file, data):
+    with open(file, 'w') as json_data:
+        json_data.write(data)
 
 
 def datetime_to_ics(date):
@@ -69,7 +79,24 @@ class Google_Calendar_Event():
                     {'method': 'popup', 'minutes': 10},
                 ],
             },
+            'creator': {
+                'displayName': 'Axel Bellec',
+                'email': 'abellec.22@gmail.com'
+            }
         }
 
     def bloc(self):
         return self.json
+
+
+class Slacker():
+
+    def __init__(self, url):
+        self.webhook_url = url
+
+    def send(self, data):
+        payload = {
+            "text": data,
+            "channel": "#emploidutemps"
+        }
+        requests.post(self.webhook_url, json=payload)
