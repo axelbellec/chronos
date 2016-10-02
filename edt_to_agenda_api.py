@@ -157,9 +157,10 @@ def authorize_api():
 
 
 @click.command()
-@click.option('--force', help='Force schedule update', default=False)
-def main(force):
-
+@click.option('--force/--no-force', help='Force schedule update', default=False)
+@click.option('--delete/--no-delete', help='Delete all old events', default=True)
+@click.option('--insert/--no-insert', help='Insert all new events', default=True)
+def main(force, delete, insert):
     data = getData(force)
 
     if data:
@@ -167,9 +168,10 @@ def main(force):
         try:
             service = authorize_api()
 
-            delete_events(service)
-
-            insert_events(service, data)
+            if delete:
+                delete_events(service)
+            if insert:
+                insert_events(service, data)
 
             slack = Slacker(webhook=SLACK_URL)
             slack.send(
