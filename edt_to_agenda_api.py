@@ -37,7 +37,7 @@ NB_RESULTS = 200
 
 def getData(force_update):
     # Download schedule
-    download_file(URL, XML_FILE)
+    # download_file(URL, XML_FILE)
 
     # Read XML data
     xml_data = read_xml(XML_FILE)
@@ -115,7 +115,7 @@ def delete_events(service):
             # Delete all events
             for event in bar:
                 try:
-                    deleted_event = service.events().delete(calendarId=CALENDAR_ID, eventId=str(event['id'])).execute()
+                    deleted_event = service.events().delete(calendarId=CALENDAR_ID, eventId=event['id']).execute()
                 except HttpError as err:
                     raise err
 
@@ -160,7 +160,10 @@ def main(force):
             insert_events(service, data)
 
             slack = Slacker(SLACK_URL)
-            slack.send("L'emploi du temps a été mis à jour.")
+            slack.send(
+                msg="L'emploi du temps a été mis à jour.",
+                channel='#emploidutemps'
+            )
 
         except AccessTokenRefreshError:
             # The AccessTokenRefreshError exception is raised if the credentials

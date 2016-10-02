@@ -94,9 +94,9 @@ class Slacker():
     def __init__(self, url):
         self.webhook_url = url
 
-    def send(self, data):
+    def send(self, msg=None, channel=None):
         payload = {
-            "text": data,
-            "channel": "#emploidutemps"
+            "text": msg,
+            "channel": channel
         }
         requests.post(self.webhook_url, json=payload)
