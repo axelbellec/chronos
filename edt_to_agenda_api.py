@@ -10,6 +10,7 @@ import lxml
 import datetime
 
 from bs4 import BeautifulSoup
+from apiclient.http import BatchHttpRequest
 from apiclient.errors import HttpError
 from apiclient.discovery import build
 from oauth2client import tools
@@ -116,27 +117,32 @@ def delete_events(service, min_date):
     events = eventsResult.get('items', [])
     click.secho('Google Agenda events found ({})'.format(len(events)), fg='cyan')
 
+    batch = service.new_batch_http_request()
     if events:
         click.secho('Deleting events on Google Agenda ({})'.format(len(events)), fg='cyan')
         with click.progressbar(events, label='Deleting events', length=len(events)) as bar:
             # Delete all events
             for event in bar:
                 try:
-                    deleted_event = service.events().delete(calendarId=CALENDAR_ID, eventId=event['id']).execute()
+                    batch.add(service.events().delete(calendarId=CALENDAR_ID, eventId=event['id']))
                 except HttpError as err:
                     raise err
+            batch.execute()
 
 
 def insert_events(service, data):
+
+    batch = service.new_batch_http_request()
     click.secho('Inserting events on Google Agenda ({})'.format(len(data)), fg='cyan')
     with click.progressbar(data, label='Updating events', length=len(data)) as bar:
-            # Insert events
+        # Insert events
         for new_event in bar:
             try:
-                service.events().insert(calendarId=CALENDAR_ID,
-                                        body=new_event, sendNotifications=True).execute()
+                batch.add(service.events().insert(calendarId=CALENDAR_ID,
+                                                  body=new_event, sendNotifications=True))
             except HttpError as err:
                 raise err
+        batch.execute()
 
 
 def authorize_api():
