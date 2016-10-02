@@ -91,8 +91,8 @@ class Google_Calendar_Event():
 
 class Slacker():
 
-    def __init__(self, url):
-        self.webhook_url = url
+    def __init__(self, webhook=None):
+        self.webhook_url = webhook
 
     def send(self, msg=None, channel=None):
         payload = {

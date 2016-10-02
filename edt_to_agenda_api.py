@@ -37,13 +37,13 @@ NB_RESULTS = 200
 
 def getData(force_update):
     # Download schedule
-    # download_file(URL, XML_FILE)
+    download_file(URL, XML_FILE)
 
     # Read XML data
     xml_data = read_xml(XML_FILE)
 
     # Give it to Beautiful Soup for pretty parsing
-    soup = BeautifulSoup(xml_data, "html.parser")
+    soup = BeautifulSoup(xml_data, 'html.parser')
 
     update_time_regex = re.compile(r'\d{2}\/\d{2}\/\d{4}\s?\d{2}:\d{2}:\d{2}')
     update_time = update_time_regex.findall(soup.find('footer').get_text())[0]
@@ -61,11 +61,20 @@ def getData(force_update):
     write_json(file=UPDATES_BACKUP, data=json.dumps(updates))
 
     # Compute a correspondance tables between 'rawweeks' and the first weekday
-    dates = {span.alleventweeks.get_text(): span['date'] for span in soup.find_all('span')}
-
-    events = []
+    dates = {
+        span.alleventweeks.get_text(): span['date'] for span in soup.find_all('span')
+    }
 
     document = soup.find_all('event')
+
+    events = extract_events_info(document, dates)
+
+    click.secho('CELCAT events formatted ({})'.format(len(events)), fg='cyan')
+    return events
+
+
+def extract_events_info(document, dates):
+    events = []
     click.secho('Formatting CELCAT events ({})'.format(len(document)), fg='cyan')
     with click.progressbar(document, label='Formatting events', length=len(document)) as bar:
         for event in bar:
@@ -93,8 +102,6 @@ def getData(force_update):
                 dtend=end_date)
 
             events.append(calendar_event.bloc())
-
-    click.secho('CELCAT events formatted ({})'.format(len(events)), fg='cyan')
     return events
 
 
@@ -132,6 +139,23 @@ def insert_events(service, data):
                 raise err
 
 
+def authorize_api():
+    flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
+    storage = Storage('credentials.dat')
+    credentials = storage.get()
+
+    if credentials is None or credentials.invalid:
+        credentials = tools.run_flow(flow, storage, tools.argparser.parse_args())
+
+    # Create an httplib2.Http object to handle our HTTP requests, and authorize it
+    # using the credentials.authorize() function.
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+    # httplib2.debuglevel = 4
+
+    return build('calendar', 'v3', http=http)
+
+
 @click.command()
 @click.option('--force', help='Force schedule update', default=False)
 def main(force):
@@ -139,27 +163,15 @@ def main(force):
     data = getData(force)
 
     if data:
-        flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
-        storage = Storage('credentials.dat')
-        credentials = storage.get()
-
-        if credentials is None or credentials.invalid:
-            credentials = tools.run_flow(flow, storage, tools.argparser.parse_args())
-
-        # Create an httplib2.Http object to handle our HTTP requests, and authorize it
-        # using the credentials.authorize() function.
-        http = httplib2.Http()
-        http = credentials.authorize(http)
-        # httplib2.debuglevel = 4
-
-        service = build('calendar', 'v3', http=http)
 
         try:
+            service = authorize_api()
+
             delete_events(service)
 
             insert_events(service, data)
 
-            slack = Slacker(SLACK_URL)
+            slack = Slacker(webhook=SLACK_URL)
             slack.send(
                 msg="L'emploi du temps a été mis à jour.",
                 channel='#emploidutemps'
