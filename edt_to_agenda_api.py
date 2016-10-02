@@ -105,12 +105,12 @@ def extract_events_info(document, dates):
     return events
 
 
-def delete_events(service):
+def delete_events(service, min_date):
     # Get all events
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
 
     eventsResult = service.events().list(
-        calendarId=CALENDAR_ID, timeMin=now, maxResults=NB_RESULTS, singleEvents=True,
+        calendarId=CALENDAR_ID, timeMin=min_date, maxResults=NB_RESULTS, singleEvents=True,
         orderBy='startTime').execute()
 
     events = eventsResult.get('items', [])
@@ -156,11 +156,18 @@ def authorize_api():
     return build('calendar', 'v3', http=http)
 
 
+def find_min_date(data):
+    dt = lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S")
+    dates = [dt(event['start']['dateTime'][:-2]) for event in data]
+    return min(dates).isoformat() + 'Z'
+
+
 @click.command()
 @click.option('--force/--no-force', help='Force schedule update', default=False)
 @click.option('--delete/--no-delete', help='Delete all old events', default=True)
 @click.option('--insert/--no-insert', help='Insert all new events', default=True)
-def main(force, delete, insert):
+@click.option('--alert/--no-alert', help='Push alert to Slack channel', default=False)
+def main(force, delete, insert, alert):
     data = getData(force)
 
     if data:
@@ -169,15 +176,16 @@ def main(force, delete, insert):
             service = authorize_api()
 
             if delete:
-                delete_events(service)
+                min_date = find_min_date(data)
+                delete_events(service, min_date)
             if insert:
                 insert_events(service, data)
-
-            slack = Slacker(webhook=SLACK_URL)
-            slack.send(
-                msg="L'emploi du temps a été mis à jour.",
-                channel='#emploidutemps'
-            )
+            if alert:
+                slack = Slacker(webhook=SLACK_URL)
+                slack.send(
+                    msg="L'emploi du temps a été mis à jour.",
+                    channel='#emploidutemps'
+                )
 
         except AccessTokenRefreshError:
             # The AccessTokenRefreshError exception is raised if the credentials
