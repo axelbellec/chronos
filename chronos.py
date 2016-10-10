@@ -214,6 +214,7 @@ def main(force, delete, insert, alert):
                     msg="L'emploi du temps a été mis à jour.",
                     channel='#emploidutemps'
                 )
+                click.secho('Notification pushed to Slack', fg='cyan')
 
         except AccessTokenRefreshError:
             # The AccessTokenRefreshError exception is raised if the credentials

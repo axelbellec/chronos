@@ -32,3 +32,11 @@ Options:
   --alert / --no-alert    Push alert to Slack channel
   --help                  Show this message and exit.
 ```
+
+### Managing `crontab`
+
+Automate task every five minutes and send a ping to [__HealthChecks.io__](https://healthchecks.io/checks/).
+```
+## Chronos
+*/5 * * * * cd <repo_directory> && ./venv/bin/python chronos.py --no-force --delete --insert --alert && curl https://hchk.io/<task_id>
+```
