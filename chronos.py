@@ -49,15 +49,19 @@ def getData(force_update):
     update_time_regex = re.compile(r'\d{2}\/\d{2}\/\d{4}\s?\d{2}:\d{2}:\d{2}')
     update_time = update_time_regex.findall(soup.find('footer').get_text())[0]
 
-    updates = read_json(file=UPDATES_BACKUP)
+    # If there is no backup file containing updates
+    if not os.path.isfile(UPDATES_BACKUP):
+        updates = dict(update_time=[update_time])
+    else:
+        updates = read_json(file=UPDATES_BACKUP)
 
-    if update_time in updates['update_time']:
-        print('Schedule has not been updated yet')
-        if not force_update:
-            return
+        if update_time in updates['update_time']:
+            print('Schedule has not been updated yet')
+            if not force_update:
+                return
 
-    updates['update_time'].append(update_time)
-    updates['update_time'] = list(set(updates['update_time']))
+        updates['update_time'].append(update_time)
+        updates['update_time'] = list(set(updates['update_time']))
 
     write_json(file=UPDATES_BACKUP, data=json.dumps(updates))
 
@@ -78,7 +82,7 @@ def extract_events_info(document, dates):
     '''
     Parse and extract data from XML balises.
 
-    Args : 
+    Args :
         -document : bs4 parsed document
         -dates : dict mapping
     Return :
@@ -119,8 +123,8 @@ def extract_events_info(document, dates):
 
 
 def delete_events(service, min_date):
-    ''' 
-    Delete all events on a Google Calendar ID 
+    '''
+    Delete all events on a Google Calendar ID
     '''
 
     # Get all events
@@ -147,8 +151,8 @@ def delete_events(service, min_date):
 
 
 def insert_events(service, data):
-    ''' 
-    Insert all events on a Google Calendar ID 
+    '''
+    Insert all events on a Google Calendar ID
     '''
 
     batch = service.new_batch_http_request()
@@ -165,7 +169,7 @@ def insert_events(service, data):
 
 
 def authorize_api():
-    ''' 
+    '''
     Compute Google authentification process
     '''
 
@@ -210,13 +214,16 @@ def main(force, delete, insert, alert):
                 delete_events(service, min_date)
             if insert:
                 insert_events(service, data)
-            if alert and SLACK_URL:
-                slack = Slacker(webhook=SLACK_URL)
-                slack.send(
-                    msg="L'emploi du temps a été mis à jour.",
-                    channel='#emploidutemps'
-                )
-                click.secho('Notification pushed to Slack', fg='cyan')
+            if alert:
+                if not SLACK_URL:
+                    click.secho('Slack webhook URL is undefined.', fg='red')
+                else:
+                    slack = Slacker(webhook=SLACK_URL)
+                    slack.send(
+                        msg="L'emploi du temps a été mis à jour.",
+                        channel='#emploidutemps'
+                    )
+                    click.secho('Notification pushed to Slack', fg='cyan')
 
         except AccessTokenRefreshError:
             # The AccessTokenRefreshError exception is raised if the credentials
