@@ -33,7 +33,7 @@ SLACK_URL = os.environ.get('SLACK_URL')
 XML_FILE = 'edt.xml'
 UPDATES_BACKUP = 'updates.json'
 SCOPE = ['https://www.googleapis.com/auth/calendar']
-NB_RESULTS = 200
+NB_RESULTS = 250
 
 
 def getData(force_update):
@@ -99,8 +99,10 @@ def extract_events_info(document, dates):
             date_first_weekday = dates[event.rawweeks.get_text()] if event.rawweeks else None
             start = '{}-{}'.format(date_first_weekday, starttime)
             end = '{}-{}'.format(date_first_weekday, endtime)
-            dtstart = datetime.datetime.strptime(start, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
-            dtend = datetime.datetime.strptime(end, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
+            dtstart = datetime.datetime.strptime(
+                start, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
+            dtend = datetime.datetime.strptime(
+                end, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
 
             start_date = dtstart.isoformat() + 'Z'
             end_date = dtend.isoformat() + 'Z'
@@ -208,7 +210,7 @@ def main(force, delete, insert, alert):
                 delete_events(service, min_date)
             if insert:
                 insert_events(service, data)
-            if alert:
+            if alert and SLACK_URL:
                 slack = Slacker(webhook=SLACK_URL)
                 slack.send(
                     msg="L'emploi du temps a été mis à jour.",
