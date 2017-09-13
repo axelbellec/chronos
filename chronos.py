@@ -37,6 +37,10 @@ NB_RESULTS = 250
 
 
 def getData(force_update):
+    """
+    Download XML file and parse it.
+    """
+
     # Download schedule
     download_file(URL, XML_FILE)
 
@@ -79,7 +83,7 @@ def getData(force_update):
 
 
 def extract_events_info(document, dates):
-    '''
+    """
     Parse and extract data from XML balises.
 
     Args :
@@ -87,7 +91,7 @@ def extract_events_info(document, dates):
         -dates : dict mapping
     Return :
         list of all formatted events
-    '''
+    """
 
     events = []
     click.secho('Formatting CELCAT events ({})'.format(len(document)), fg='cyan')
@@ -123,9 +127,9 @@ def extract_events_info(document, dates):
 
 
 def delete_events(service, min_date):
-    '''
+    """
     Delete all events on a Google Calendar ID
-    '''
+    """
 
     # Get all events
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
@@ -151,9 +155,9 @@ def delete_events(service, min_date):
 
 
 def insert_events(service, data):
-    '''
+    """
     Insert all events on a Google Calendar ID
-    '''
+    """
 
     batch = service.new_batch_http_request()
     click.secho('Inserting events on Google Agenda ({})'.format(len(data)), fg='cyan')
@@ -169,9 +173,9 @@ def insert_events(service, data):
 
 
 def authorize_api():
-    '''
+    """
     Compute Google authentification process
-    '''
+    """
 
     flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
     storage = Storage('credentials.dat')
@@ -190,7 +194,7 @@ def authorize_api():
 
 
 def find_min_date(data):
-    ''' Find the lowest date in a set '''
+    """ Find the lowest date in a set """
     dt = lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S")
     dates = [dt(event['start']['dateTime'][:-2]) for event in data]
     return min(dates).isoformat() + 'Z'
