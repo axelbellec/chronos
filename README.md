@@ -49,3 +49,22 @@ Options:
   --force / --no-force  Force schedule update
   --help                Show this message and exit.
 ```
+
+### Deployment using Heroku
+
+You will need a new dependency, `gunicorn`, for deploying the app:
+```
+$ pip install gunicorn
+```
+
+Then, create a `Procfile`:
+```
+web: gunicorn app:app
+```
+
+Finally, login to heroku using `heroku-cli`, initialize Heroku app and deploy it:
+```
+$ heroku create chronos-edt-updater
+$ git push heroku master # deploy code to heroku
+$ heroku ps:scale web=1  # run the app with a 1 heroku "dyno"
+```
