@@ -13,3 +13,4 @@ arrow==0.10.0
 Flask==0.12.2
 Flask-Script==2.0.6
 PyYAML==3.12
+APScheduler==3.3.1
