@@ -25,7 +25,7 @@ from chronos.tracing import log_factory
 from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS
 
 log = log_factory(__name__)
-httplib2.debuglevel = 1
+httplib2.debuglevel = 0
 
 class TimetableParser(object):
     """ A custom Parser to extract events from an XML file. """
