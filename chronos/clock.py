@@ -9,6 +9,6 @@ sched = BlockingScheduler()
 @sched.scheduled_job('interval', minutes=5)
 def timed_job():
     print('This job is run every five minutes.')
-    main(force=True)
+    cli(force=True)
     
 sched.start()
