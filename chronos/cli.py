@@ -11,9 +11,8 @@ from chronos.tracing import log_factory
 
 log = log_factory(__name__)
 
-@click.command()
-@click.option('--force/--no-force', help='Force schedule update', default=False)
-def cli(force):
+
+def cli(force=False):
     """ Basic tool to download CELCAT timetables, 
         parse them and send data through Google Agenda API. 
     """
