@@ -66,5 +66,6 @@ Finally, login to heroku using `heroku-cli`, initialize Heroku app and deploy it
 ```
 $ heroku create chronos-edt-updater
 $ git push heroku master # deploy code to heroku
+$ heroku config:set BUILDPACK_URL=https://github.com/arose13/conda-buildpack.git
 $ heroku ps:scale web=1  # run the app with a 1 heroku "dyno"
 ```
