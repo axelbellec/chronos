@@ -25,7 +25,7 @@ from chronos.tracing import log_factory
 from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS
 
 log = log_factory(__name__)
-
+httplib2.debuglevel = 1
 
 class TimetableParser(object):
     """ A custom Parser to extract events from an XML file. """
@@ -186,11 +186,11 @@ class TimetableParser(object):
             orderBy='startTime').execute()
 
         events = events_result.get('items', [])
-        log.info('{} Google Agenda events found for "{}"'.format(len(events), self.school_year))
+        log.debug('{} Google Agenda events found for "{}"'.format(len(events), self.school_year))
 
         batch = self.service.new_batch_http_request()
         if events:
-            click.secho('Deleting events on Google Agenda ({})'.format(len(events)), fg='cyan')
+            log.info('deleting {} events on Google Agenda for "{}"'.format(len(events), self.school_year))
             with click.progressbar(events, label='Deleting events', length=len(events)) as bar:
                 # Delete all events
                 for event in bar:
