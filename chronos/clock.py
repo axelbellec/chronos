@@ -11,7 +11,7 @@ log = log_factory(__name__)
 
 def timed_job():
     log.info('this job is run every five minutes')
-    cli()
+    cli(force=False)
     
 if __name__ == '__main__':
     sched = BlockingScheduler()

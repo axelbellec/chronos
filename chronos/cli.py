@@ -7,12 +7,12 @@ import yaml
 
 from chronos.parser import TimetableParser
 from chronos.tracing import log_factory
-
+from chronos.config import CHRONOS_FORCE_UPDATE
 
 log = log_factory(__name__)
 
 
-def cli(force=False):
+def cli(force=CHRONOS_FORCE_UPDATE):
     """ Basic tool to download CELCAT timetables, 
         parse them and send data through Google Agenda API. 
     """

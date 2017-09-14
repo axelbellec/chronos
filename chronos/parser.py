@@ -10,7 +10,6 @@ import re
 import click
 import datetime
 import httplib2
-import dotenv
 
 from bs4 import BeautifulSoup
 from apiclient.errors import HttpError
@@ -23,17 +22,9 @@ from oauth2client.client import OAuth2WebServerFlow
 from chronos.util import download_file, read_xml, read_json, write_json
 from chronos.event import GoogleCalendarEvent
 from chronos.tracing import log_factory
+from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS
 
 log = log_factory(__name__)
-
-dotenv.load()
-
-CLIENT_ID = os.environ.get('CLIENT_ID')
-CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
-
-UPDATES_BACKUP = os.path.join('data', 'updates.json')
-SCOPE = ['https://www.googleapis.com/auth/calendar']
-NB_RESULTS = 300
 
 
 class TimetableParser(object):
