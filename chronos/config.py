@@ -13,4 +13,4 @@ UPDATES_BACKUP = os.path.join('data', 'updates.json')
 SCOPE = ['https://www.googleapis.com/auth/calendar']
 NB_RESULTS = 300
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'info')
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'debug')
