@@ -1,0 +1,49 @@
+
+{% extends "layout.html" %}
+
+{% block head %}
+    {% block title %}
+    <title>{{ title }}</title>
+    {% endblock %}
+{% endblock %}
+
+
+{% block content %}
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+        <h1 class="title has-text-grey-dark">
+            Chronos
+        </h1>
+        <h2 class="subtitle">
+            Outil de transfert des EDT vers <strong>Google Agenda</strong>.
+        </h2>
+        </div>
+    </div>
+</section>              
+
+<div class="container is-widescreen">
+    {% for school_year, attrs in data.items() %}
+    <section class="section">
+        <p class="subtitle is-5">
+            Promo <a href="{{ attrs.google_calendar_url }}}"><strong>{{ attrs.description }}</strong></a>
+        </p>
+        <nav class="level">
+            <div class="level-left">
+                <div class="level-item has-text-justified">
+                    <div class="notification">
+                            L'emploi du temps a été mis a jour.<br><i>{{ attrs.update_time }}</i> - <code>[{{school_year|upper}}]</code>
+                    </div>
+                </div>
+            </div>    
+            <div class="level-right">
+                <div class="level-item has-text-right">
+                    <i>{{ humanize_date(attrs.update_time) }}</i>
+                </div>
+            </div>    
+        </nav>        
+    </section>
+{% endfor %}
+</div>
+
+{% endblock %}

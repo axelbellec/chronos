@@ -1,3 +1,5 @@
+# coding: utf-8
+
 __project__ = 'chronos'
 __author__ = 'Axel Bellec'
 __licence__ = 'MIT'

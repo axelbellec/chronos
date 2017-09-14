@@ -2,11 +2,14 @@ sid_l3:
   description: "Licence 3 SID"
   timetable_url: "https://edt.univ-tlse3.fr/FSI/2017_2018/L3/L3_SID/g236140.xml"
   google_calendar_id: "u1ou4n9m9fl3mc72tl5cc00qfs@group.calendar.google.com"
+  google_calendar_url: https://calendar.google.com/calendar/embed?src=u1ou4n9m9fl3mc72tl5cc00qfs%40group.calendar.google.com&ctz=Europe/Paris
 sid_m1:
   description: "Master 1 SID"
   timetable_url: "https://edt.univ-tlse3.fr/FSI/2017_2018/M1/M1_MAT_SID/g241779.xml"
   google_calendar_id: "gn8oapl798ljh922jthq36bh40@group.calendar.google.com"
+  google_calendar_url: "https://calendar.google.com/calendar/embed?src=gn8oapl798ljh922jthq36bh40%40group.calendar.google.com&ctz=Europe/Paris"
 sid_m2:
   description: "Master 2 SID"
   timetable_url: "https://edt.univ-tlse3.fr/FSI/2017_2018/M2/M2_MAT_SID/g251952.xml"
   google_calendar_id: "h8pvl4snu2ortslqrtc6p3ambk@group.calendar.google.com"
+  google_calendar_url: "https://calendar.google.com/calendar/embed?src=h8pvl4snu2ortslqrtc6p3ambk%40group.calendar.google.com&ctz=Europe/Paris"

@@ -1,20 +1,23 @@
+# coding: utf-8
+
 """ Common methods to download or read files. """
 
 import json
 import yaml
 
 import requests
-import tqdm
+import click
 
 
 def download_file(url, output_filename):
     response = requests.get(url, stream=True)
-
     assert response.status_code == 200
 
     with open(output_filename, 'wb') as output_file:
-        for data in tqdm.tqdm(response.iter_content()):
-            output_file.write(data)
+        content = list(response.iter_content())
+        with click.progressbar(content, length=len(content), label='Downloading timetable XML file') as bar:
+            for chunk in bar:
+                output_file.write(chunk)
 
 
 def read_xml(file):

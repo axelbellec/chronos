@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """ A simple .pdf parser that extracts school timetables and push them
 into a Google Calendar. """
 
