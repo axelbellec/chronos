@@ -11,7 +11,7 @@ from chronos.parser import TimetableParser
 
 @click.command()
 @click.option('--force/--no-force', help='Force schedule update', default=False)
-def main(force):
+def cli(force):
     """ Basic tool to download CELCAT timetables, 
         parse them and send data through Google Agenda API. 
     """
@@ -31,4 +31,4 @@ def main(force):
         timetable.process()
 
 if __name__ == '__main__':
-    main()
+    cli()

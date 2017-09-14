@@ -2,7 +2,7 @@
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from chronos.cli import main
+from chronos.cli import cli
 
 sched = BlockingScheduler()
 
@@ -11,6 +11,4 @@ def timed_job():
     print('This job is run every five minutes.')
     main(force=True)
     
-
-if __name__ == '__main__':
-    sched.start()
+sched.start()
