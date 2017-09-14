@@ -6,9 +6,9 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 from chronos.cli import cli
 from chronos.tracing import log_factory
-from chronos.config import CHRONOS_FORCE_UPDATE
+from chronos.config import CHRONOS_FORCE_UPDATE, LOG_LEVEL
 
-log = log_factory(__name__)
+log = log_factory(__name__, LOG_LEVEL)
 
 def timed_job():
     log.debug('this job is run every five minutes')

@@ -22,9 +22,9 @@ from oauth2client.client import OAuth2WebServerFlow
 from chronos.util import download_file, read_xml, read_json, write_json
 from chronos.event import GoogleCalendarEvent
 from chronos.tracing import log_factory
-from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS
+from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS, LOG_LEVEL
 
-log = log_factory(__name__)
+log = log_factory(__name__, LOG_LEVEL)
 
 class TimetableParser(object):
     """ A custom Parser to extract events from an XML file. """
