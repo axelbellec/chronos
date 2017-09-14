@@ -11,7 +11,7 @@ from chronos.config import CHRONOS_FORCE_UPDATE
 log = log_factory(__name__)
 
 def timed_job():
-    log.info('this job is run every five minutes')
+    log.debug('this job is run every five minutes')
     cli(force=CHRONOS_FORCE_UPDATE)
     
 if __name__ == '__main__':

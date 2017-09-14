@@ -25,7 +25,6 @@ from chronos.tracing import log_factory
 from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS
 
 log = log_factory(__name__)
-httplib2.debuglevel = 0
 
 class TimetableParser(object):
     """ A custom Parser to extract events from an XML file. """
@@ -51,7 +50,7 @@ class TimetableParser(object):
         return os.path.join('data', 'timetable_{}.xml'.format(self.school_year))
 
     def save_update_time(self):
-        log.info('trying to save update time for "{}".'.format(self.school_year))
+        log.debug('trying to save update time for "{}".'.format(self.school_year))
         if not os.path.isfile(UPDATES_BACKUP):
             updates = {
                 self.school_year: [self.update_time]
@@ -61,7 +60,7 @@ class TimetableParser(object):
 
             if self.update_time in updates.get(self.school_year, []):
                 if not self.force_update:
-                    log.info('timetable for "{}" has not been updated yet.'.format(self.school_year))
+                    log.debug('timetable for "{}" has not been updated yet.'.format(self.school_year))
                     self.schedule_is_new = False
 
             if not self.school_year in updates.keys():
@@ -77,7 +76,7 @@ class TimetableParser(object):
         """ Download an XML file and parse it. """
 
         # Download schedule
-        log.info('downloading timetable for "{}".'.format(self.school_year))
+        log.debug('downloading timetable for "{}".'.format(self.school_year))
         download_file(self.schedule_url, self.schedule_filename)
 
         # Read XML data
@@ -97,7 +96,7 @@ class TimetableParser(object):
             for span in soup.find_all('span')
         }
 
-        log.info('find all events for "{}".'.format(self.school_year))
+        log.debug('find all events for "{}".'.format(self.school_year))
         self.unformatted_events = soup.find_all('event')
 
     def find_min_date(self):
@@ -110,7 +109,7 @@ class TimetableParser(object):
     def format_events(self):
         """ Parse and format events from XML data. """
 
-        log.info('formatting events ({}) for "{}"'.format(len(self.unformatted_events), self.school_year))
+        log.debug('formatting events ({}) for "{}"'.format(len(self.unformatted_events), self.school_year))
         for event in self.unformatted_events:
             name = event.module.get_text().replace('\n', '') if event.module else 'Matière non définie'
             category = event.category.get_text() if event.category else 'Catégorie de cours non définie'
@@ -140,7 +139,7 @@ class TimetableParser(object):
     def authorize_api(self):
         """ Compute Google authentification process. """
 
-        log.info('computing Google authentification process for "{}".'.format(self.school_year))
+        log.debug('computing Google authentification process for "{}".'.format(self.school_year))
         flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
         storage = Storage('credentials.dat')
         credentials = storage.get()
@@ -152,7 +151,7 @@ class TimetableParser(object):
         # using the credentials.authorize() function.
         http = httplib2.Http()
         http = credentials.authorize(http)
-        # httplib2.debuglevel = 4
+        httplib2.debuglevel = 0
 
         return build('calendar', 'v3', http=http)
 
@@ -165,7 +164,7 @@ class TimetableParser(object):
         if self.schedule_is_new:
             self.format_events()
             self.find_min_date()
-            log.info('events formatted ({}) for "{}"'.format(len(self.formatted_events), self.school_year))
+            log.debug('events formatted ({}) for "{}"'.format(len(self.formatted_events), self.school_year))
 
             self.service = self.authorize_api()
             try:
@@ -190,7 +189,7 @@ class TimetableParser(object):
 
         batch = self.service.new_batch_http_request()
         if events:
-            log.info('deleting {} events on Google Agenda for "{}"'.format(len(events), self.school_year))
+            log.debug('deleting {} events on Google Agenda for "{}"'.format(len(events), self.school_year))
             with click.progressbar(events, label='Deleting events', length=len(events)) as bar:
                 # Delete all events
                 for event in bar:
@@ -205,7 +204,7 @@ class TimetableParser(object):
         """ Insert all events on a Google Calendar ID. """
 
         batch = self.service.new_batch_http_request()
-        log.info('inserting {} Google Agenda events for "{}"'.format(len(self.formatted_events), self.school_year))
+        log.debug('inserting {} Google Agenda events for "{}"'.format(len(self.formatted_events), self.school_year))
         with click.progressbar(self.formatted_events, label='Updating events', length=len(self.formatted_events)) as events:
             # Insert events
             for event in events:

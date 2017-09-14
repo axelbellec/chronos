@@ -20,7 +20,7 @@ def cli(force=False):
         config = yaml.load(config_file)
 
     for year_group, properties in config.items():
-        log.info('downloading and parsing timetable for "%s"', year_group)
+        log.debug('downloading and parsing timetable for "%s"', year_group)
         click.secho(properties['description'], fg='yellow', bold=True)
         timetable = TimetableParser(
             school_year=year_group,
