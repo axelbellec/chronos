@@ -3,11 +3,13 @@
 """ Chronos CLI. """
 
 import click
-
 import yaml
 
 from chronos.parser import TimetableParser
+from chronos.tracing import log_factory
 
+
+log = log_factory(__name__)
 
 @click.command()
 @click.option('--force/--no-force', help='Force schedule update', default=False)
@@ -20,6 +22,7 @@ def cli(force):
         config = yaml.load(config_file)
 
     for year_group, properties in config.items():
+        log.info('downloading and parsing timetable for "%s"', year_group)
         click.secho(properties['description'], fg='yellow', bold=True)
         timetable = TimetableParser(
             school_year=year_group,

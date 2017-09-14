@@ -3,12 +3,17 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from chronos.cli import cli
+from chronos.tracing import log_factory
 
+log = log_factory(__name__)
 sched = BlockingScheduler()
+
 
 @sched.scheduled_job('interval', minutes=5)
 def timed_job():
-    print('This job is run every five minutes.')
-    cli(force=True)
+    log.info('this job is run every five minutes')
+    cli()
     
-sched.start()
+
+if __name__ == '__main__':
+    sched.start()

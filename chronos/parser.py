@@ -22,6 +22,9 @@ from oauth2client.client import OAuth2WebServerFlow
 
 from chronos.util import download_file, read_xml, read_json, write_json
 from chronos.event import GoogleCalendarEvent
+from chronos.tracing import log_factory
+
+log = log_factory(__name__)
 
 dotenv.load()
 
@@ -65,7 +68,7 @@ class TimetableParser(object):
             updates = read_json(file=UPDATES_BACKUP)
 
             if self.update_time in updates.get(self.school_year, []):
-                print('Timetable for "{}" has not been updated yet.'.format(self.school_year))
+                log.info('timetable for "{}" has not been updated yet.'.format(self.school_year))
                 if not self.force_update:
                     self.schedule_is_new = False
 
