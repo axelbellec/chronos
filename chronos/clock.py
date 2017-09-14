@@ -13,7 +13,6 @@ def timed_job():
     log.info('this job is run every five minutes')
     cli()
     
-
 if __name__ == '__main__':
     sched = BlockingScheduler()
     sched.add_job(timed_job, 'cron', id='run_every_5_min', minute='*/5')

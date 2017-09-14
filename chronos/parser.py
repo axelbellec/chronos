@@ -116,33 +116,32 @@ class TimetableParser(object):
     def format_events(self):
         """ Parse and format events from XML data. """
 
-        click.secho('Formatting CELCAT events ({})'.format(len(self.unformatted_events)), fg='cyan')
-        with click.progressbar(self.unformatted_events, label='Formatting events', length=len(self.unformatted_events)) as events:
-            for event in events:
-                name = event.module.get_text().replace('\n', '') if event.module else 'Matière non définie'
-                category = event.category.get_text() if event.category else 'Catégorie de cours non définie'
-                starttime = event.starttime.get_text() if event.starttime else 'Heure de début de cours non définie'
-                endtime = event.endtime.get_text() if event.endtime else 'Heure de début de cours non définie'
-                room = event.room.item.get_text() if event.room and event.room.item else 'Aucune salle définie'
-                group = event.group.item.get_text() if event.group and event.group.item else 'Classe entière'
-                nday = int(event.day.get_text()) if event.day else None
-                date_first_weekday = self.week_dates_mapping[event.rawweeks.get_text()] if event.rawweeks else None
-                start = '{}-{}'.format(date_first_weekday, starttime)
-                end = '{}-{}'.format(date_first_weekday, endtime)
-                dtstart = datetime.datetime.strptime(start, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
-                dtend = datetime.datetime.strptime(end, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
+        log.info('formatting CELCAT events ({})'.format(len(self.unformatted_events)))
+        for event in self.unformatted_events:
+            name = event.module.get_text().replace('\n', '') if event.module else 'Matière non définie'
+            category = event.category.get_text() if event.category else 'Catégorie de cours non définie'
+            starttime = event.starttime.get_text() if event.starttime else 'Heure de début de cours non définie'
+            endtime = event.endtime.get_text() if event.endtime else 'Heure de début de cours non définie'
+            room = event.room.item.get_text() if event.room and event.room.item else 'Aucune salle définie'
+            group = event.group.item.get_text() if event.group and event.group.item else 'Classe entière'
+            nday = int(event.day.get_text()) if event.day else None
+            date_first_weekday = self.week_dates_mapping[event.rawweeks.get_text()] if event.rawweeks else None
+            start = '{}-{}'.format(date_first_weekday, starttime)
+            end = '{}-{}'.format(date_first_weekday, endtime)
+            dtstart = datetime.datetime.strptime(start, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
+            dtend = datetime.datetime.strptime(end, '%d/%m/%Y-%H:%M') + datetime.timedelta(days=nday, hours=-2)
 
-                start_date = dtstart.isoformat() + 'Z'
-                end_date = dtend.isoformat() + 'Z'
+            start_date = dtstart.isoformat() + 'Z'
+            end_date = dtend.isoformat() + 'Z'
 
-                calendar_event = GoogleCalendarEvent(
-                    location=room,
-                    summary='({}) - {} - {}'.format(category, name, group),
-                    description=group,
-                    dtstart=start_date,
-                    dtend=end_date
-                )
-                self.formatted_events.append(calendar_event.json)
+            calendar_event = GoogleCalendarEvent(
+                location=room,
+                summary='({}) - {} - {}'.format(category, name, group),
+                description=group,
+                dtstart=start_date,
+                dtend=end_date
+            )
+            self.formatted_events.append(calendar_event.json)
 
     def authorize_api(self):
         """ Compute Google authentification process. """
@@ -171,7 +170,7 @@ class TimetableParser(object):
         if self.schedule_is_new:
             self.format_events()
             self.find_min_date()
-            click.secho('CELCAT events formatted ({})'.format(len(self.formatted_events)), fg='cyan')
+            log.info('CELCAT events formatted ({})'.format(len(self.formatted_events)))
 
             self.service = self.authorize_api()
             try:
