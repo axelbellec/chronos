@@ -20,10 +20,9 @@ def download_file(url, output_filename):
                 output_file.write(chunk)
 
 
-def read_xml(file):
+def read_file(file):
     with open(file, 'r') as stream_file:
-        content = stream_file.read()
-    return content
+        return stream_file.read()
 
 
 def read_json(file):

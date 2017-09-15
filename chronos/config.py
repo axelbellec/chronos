@@ -10,6 +10,8 @@ CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 CHRONOS_FORCE_UPDATE = bool(os.environ.get('FORCE_UPDATE'))
 
 UPDATES_BACKUP = os.path.join('data', 'updates.json')
+CHRONOS_RUN_TIME = os.path.join('data', 'chronos_last_run.txt')
+
 SCOPE = ['https://www.googleapis.com/auth/calendar']
 NB_RESULTS = 300
 

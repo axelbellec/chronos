@@ -19,10 +19,10 @@ from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import OAuth2WebServerFlow
 
-from chronos.util import download_file, read_xml, read_json, write_json
+from chronos.util import download_file, read_file, read_json, write_json
 from chronos.event import GoogleCalendarEvent
 from chronos.tracing import log_factory
-from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS, LOG_LEVEL
+from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, CHRONOS_RUN_TIME, SCOPE, NB_RESULTS, LOG_LEVEL
 
 log = log_factory(__name__, LOG_LEVEL)
 
@@ -68,8 +68,12 @@ class TimetableParser(object):
                 updates[self.school_year].append(self.update_time)
 
             updates[self.school_year] = list(set(updates[self.school_year]))
+            
             now = datetime.datetime.now()
-            updates['chronos_last_run'] = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))
+            chronos_last_run = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))
+            
+            with open(CHRONOS_RUN_TIME, 'w') as stream_file:    
+                stream_file.write(chronos_last_run)
 
         write_json(file=UPDATES_BACKUP, data=json.dumps(updates))
 
@@ -81,7 +85,7 @@ class TimetableParser(object):
         download_file(self.schedule_url, self.schedule_filename)
 
         # Read XML data
-        xml_data = read_xml(self.schedule_filename)
+        xml_data = read_file(self.schedule_filename)
 
         # Give it to Beautiful Soup for pretty parsing
         soup = BeautifulSoup(xml_data, 'html.parser')
