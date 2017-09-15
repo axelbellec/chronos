@@ -15,6 +15,7 @@ CHRONOS_CONFIG = app.config['CHRONOS_CONFIG']
 
 def get_updates():
     updates_by_school_year = read_json(UPDATES)
+    updates_by_school_year.pop('chronos_last_run')
     for school_year, updates_times in updates_by_school_year.items():
         updates_by_school_year[school_year] = updates_times[-1]
     return OrderedDict(sorted(updates_by_school_year.items()))
@@ -53,10 +54,13 @@ def humanize_date(date_str):
 
 @app.route('/', methods=['GET'])
 def main_route():
-    updates = get_updates()
-    data = get_config()
-    for key in data.keys():
-        data[key]['update_time'] = updates[key]
-
-    app.logger.info('getting updates: %s', updates)
-    return render_template('index.html', title='Chronos', data=data, humanize_date=humanize_date)
+    chronos_updates = get_updates()
+    chronos_config = get_config()
+    for school_year in chronos_config.keys():
+        chronos_config[school_year]['update_time'] = chronos_updates[school_year]
+    last_run = read_json(UPDATES)['chronos_last_run']
+    
+    app.logger.info('getting updates: %s', chronos_updates)
+    return render_template('index.html', title='Chronos', data=chronos_config, 
+                            humanize_date=humanize_date, 
+                            last_update_time=last_run)

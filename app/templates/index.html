@@ -13,11 +13,17 @@
     <div class="hero-body">
         <div class="container">
         <h1 class="title has-text-grey-dark">
-            Chronos
+            Chronos 
+            <a class="icon" href="https://github.com/axelbellec/chronos">
+                <i class="fa fa-github"></i>
+            </a>
         </h1>
         <h2 class="subtitle">
             Outil de transfert des EDT vers <strong>Google Agenda</strong>.
         </h2>
+            <div class="notification has-text-grey-dark">
+                Dernière mise à jour de Chronos : {{ last_update_time }}
+            </div>              
         </div>
     </div>
 </section>              
@@ -34,12 +40,19 @@
                     <div class="notification">
                             L'emploi du temps a été mis a jour.<br><i>{{ attrs.update_time }}</i> - <code>[{{school_year|upper}}]</code>
                     </div>
-                </div>
+                </div>     
             </div>    
             <div class="level-right">
                 <div class="level-item has-text-right">
                     <i>{{ humanize_date(attrs.update_time) }}</i>
                 </div>
+                {% if not "jour" in humanize_date(attrs.update_time) %}
+                <div class="level-item">
+                    <span class="tag is-warning is-medium">
+                        Nouveau
+                    </span>                                                
+                </div>
+                {% endif %}
             </div>    
         </nav>        
     </section>

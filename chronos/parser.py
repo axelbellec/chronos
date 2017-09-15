@@ -50,7 +50,7 @@ class TimetableParser(object):
         return os.path.join('data', 'timetable_{}.xml'.format(self.school_year))
 
     def save_update_time(self):
-        log.debug('trying to save update time for "{}".'.format(self.school_year))
+        log.debug('trying to save update time for "{}"'.format(self.school_year))
         if not os.path.isfile(UPDATES_BACKUP):
             updates = {
                 self.school_year: [self.update_time]
@@ -60,7 +60,6 @@ class TimetableParser(object):
 
             if self.update_time in updates.get(self.school_year, []):
                 if not self.force_update:
-                    log.debug('timetable for "{}" has not been updated yet.'.format(self.school_year))
                     self.schedule_is_new = False
 
             if not self.school_year in updates.keys():
@@ -69,6 +68,8 @@ class TimetableParser(object):
                 updates[self.school_year].append(self.update_time)
 
             updates[self.school_year] = list(set(updates[self.school_year]))
+            now = datetime.datetime.now()
+            updates['chronos_last_run'] = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))
 
         write_json(file=UPDATES_BACKUP, data=json.dumps(updates))
 
@@ -76,7 +77,7 @@ class TimetableParser(object):
         """ Download an XML file and parse it. """
 
         # Download schedule
-        log.debug('downloading timetable for "{}".'.format(self.school_year))
+        log.debug('downloading timetable for "{}"'.format(self.school_year))
         download_file(self.schedule_url, self.schedule_filename)
 
         # Read XML data
@@ -139,7 +140,7 @@ class TimetableParser(object):
     def authorize_api(self):
         """ Compute Google authentification process. """
 
-        log.debug('computing Google authentification process for "{}".'.format(self.school_year))
+        log.debug('computing Google authentification process for "{}"'.format(self.school_year))
         flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, SCOPE)
         storage = Storage('credentials.dat')
         credentials = storage.get()
@@ -162,6 +163,7 @@ class TimetableParser(object):
         self.get_timetable()
 
         if self.schedule_is_new:
+            log.debug('timetable for "{}" has been updated'.format(self.school_year))
             self.format_events()
             self.find_min_date()
             log.debug('events formatted ({}) for "{}"'.format(len(self.formatted_events), self.school_year))
@@ -175,6 +177,8 @@ class TimetableParser(object):
                 # have been revoked by the user or they have expired.
                 print('The credentials have been revoked or expired, please re-run'
                     'the application to re-authorize')
+        else:
+            log.debug('timetable for "{}" has not been updated yet'.format(self.school_year))
 
     def delete_events(self):
         """ Delete all events on a Google Calendar ID. """
@@ -194,7 +198,11 @@ class TimetableParser(object):
                 # Delete all events
                 for event in bar:
                     try:
-                        batch.add(self.service.events().delete(calendarId=self.google_calendar_id, eventId=event['id']))
+                        delete_step = self.service.events().delete(
+                            calendarId=self.google_calendar_id, 
+                            eventId=event['id']
+                        )
+                        batch.add(delete_step)
                     except HttpError as err:
                         raise err
                 batch.execute()
@@ -209,8 +217,11 @@ class TimetableParser(object):
             # Insert events
             for event in events:
                 try:
-                    batch.add(self.service.events().insert(calendarId=self.google_calendar_id,
-                                                    body=event, sendNotifications=True))
+                    insert_step = self.service.events().insert(
+                        calendarId=self.google_calendar_id,
+                        body=event, sendNotifications=True
+                    )
+                    batch.add(insert_step)
                 except HttpError as err:
                     raise err
             batch.execute()
