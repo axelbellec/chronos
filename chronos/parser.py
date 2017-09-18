@@ -70,7 +70,7 @@ class TimetableParser(object):
 
             updates[self.school_year] = list(set(updates[self.school_year]))
             
-            now = datetime.datetime.now()
+            now = datetime.datetime.now() + datetime.timedelta(hours=2)
             chronos_last_run = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))
             
             cache.set('chronos_last_run', chronos_last_run)
