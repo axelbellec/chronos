@@ -14,7 +14,11 @@ app = Flask(NAMESPACE)
 app.config.from_object('app.config')
 
 # Building a cache instance
-cache = redis.from_url(app.config.get('REDIS_URL'))
+if not app.config.get('REDIS_URL'):
+    cache = redis.Redis()
+else:
+    cache = redis.from_url(app.config.get('REDIS_URL'))
+
 
 # Set a custom secret key
 app.secret_key = 'chronos'
