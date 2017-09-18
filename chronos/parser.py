@@ -22,7 +22,7 @@ from oauth2client.client import OAuth2WebServerFlow
 from chronos.util import download_file, read_file, read_json, write_json
 from chronos.event import GoogleCalendarEvent
 from chronos.tracing import log_factory
-from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS, LOG_LEVEL
+from chronos.config import CLIENT_ID, CLIENT_SECRET, SCOPE, NB_RESULTS, LOG_LEVEL
 from app import cache
 
 log = log_factory(__name__, LOG_LEVEL)
@@ -52,30 +52,22 @@ class TimetableParser(object):
 
     def save_update_time(self):
         log.debug('trying to save update time for "{}"'.format(self.school_year))
-        if not os.path.isfile(UPDATES_BACKUP):
-            updates = {
-                self.school_year: [self.update_time]
-            }
-        else:
-            updates = read_json(file=UPDATES_BACKUP)
+        
+        # Get all updates for the school_year
+        updates = cache.lrange(self.school_year, 0, -1)
 
-            if self.update_time in updates.get(self.school_year, []):
-                if not self.force_update:
-                    self.schedule_is_new = False
+        if self.update_time in updates:
+            if not self.force_update:
+                self.schedule_is_new = False
 
-            if not self.school_year in updates.keys():
-                updates[self.school_year] = [self.update_time]
-            else:
-                updates[self.school_year].append(self.update_time)
+        # Insert update time into broker
+        cache.rpush(self.school_year, self.update_time)
 
-            updates[self.school_year] = list(set(updates[self.school_year]))
-            
-            now = datetime.datetime.now() + datetime.timedelta(hours=2)
-            chronos_last_run = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))
-            
-            cache.set('chronos_last_run', chronos_last_run)
+        # Insert chronos runtime into broker
+        now = datetime.datetime.now() + datetime.timedelta(hours=2)
+        chronos_last_run = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))            
+        cache.set('chronos_last_run', chronos_last_run)
 
-        write_json(file=UPDATES_BACKUP, data=json.dumps(updates))
 
     def get_timetable(self):
         """ Download an XML file and parse it. """
