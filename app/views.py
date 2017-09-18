@@ -8,8 +8,8 @@ import datetime as dt
 from flask import render_template
 
 from app import app
+from app import cache
 from chronos.util import read_json, read_yaml
-from chronos.config import CHRONOS_RUN_TIME
 
 UPDATES = app.config['UPDATES']
 CHRONOS_CONFIG = app.config['CHRONOS_CONFIG']
@@ -59,8 +59,7 @@ def main_route():
     for school_year in chronos_config.keys():
         chronos_config[school_year]['update_time'] = chronos_updates[school_year]
     
-    with open(CHRONOS_RUN_TIME, 'r') as f:
-        last_run = f.read()
+    last_run = cache.get('chronos_last_run').decode('utf-8')
 
     app.logger.info('getting updates: %s', chronos_updates)
     return render_template('index.html', title='Chronos', data=chronos_config, 

@@ -22,7 +22,8 @@ from oauth2client.client import OAuth2WebServerFlow
 from chronos.util import download_file, read_file, read_json, write_json
 from chronos.event import GoogleCalendarEvent
 from chronos.tracing import log_factory
-from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, CHRONOS_RUN_TIME, SCOPE, NB_RESULTS, LOG_LEVEL
+from chronos.config import CLIENT_ID, CLIENT_SECRET, UPDATES_BACKUP, SCOPE, NB_RESULTS, LOG_LEVEL
+from app import cache
 
 log = log_factory(__name__, LOG_LEVEL)
 
@@ -72,8 +73,7 @@ class TimetableParser(object):
             now = datetime.datetime.now()
             chronos_last_run = str(datetime.datetime.strftime(now, '%d/%m/%Y %H:%M:%S'))
             
-            with open(CHRONOS_RUN_TIME, 'w') as stream_file:    
-                stream_file.write(chronos_last_run)
+            cache.set('chronos_last_run', chronos_last_run)
 
         write_json(file=UPDATES_BACKUP, data=json.dumps(updates))
 

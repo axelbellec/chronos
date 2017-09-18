@@ -2,7 +2,6 @@
 
 """ Chronos CLI. """
 
-import click
 import yaml
 
 from chronos.parser import TimetableParser
@@ -21,7 +20,6 @@ def cli(force=False):
 
     for year_group, properties in config.items():
         log.debug('downloading and parsing timetable for "%s"', year_group)
-        click.secho(properties['description'], fg='yellow', bold=True)
         timetable = TimetableParser(
             school_year=year_group,
             schedule_url=properties['timetable_url'],
