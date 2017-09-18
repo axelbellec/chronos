@@ -5,7 +5,7 @@ Basic tool to download CELCAT timetables, parse them and send data through [__Go
 `chronos` access timetables from a CELCAT link, download XML data and extract all events with *BeautifulSoup*. 
 Then they are formated into JSON and sent by batch HTTP requests through Google Agenda API. 
 
-A simple [single page app](http://chronos-edt-updater.herokuapp.com) show updates for each timetable related to a school year.
+A simple [single page app](http://chronos-edt.herokuapp.com) show updates for each timetable related to a school year.
 
 ![chronos.gif](doc/chronos.gif)
 
