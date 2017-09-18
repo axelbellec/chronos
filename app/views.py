@@ -59,7 +59,7 @@ def main_route():
     for school_year in chronos_config.keys():
         chronos_config[school_year]['update_time'] = chronos_updates[school_year]
     
-    last_run = cache.get('chronos_last_run').decode('utf-8')
+    last_run = 'indéterminée' if not cache.get('chronos_last_run') else cache.get('chronos_last_run').decode('utf-8')
 
     app.logger.info('getting updates: %s', chronos_updates)
     return render_template('index.html', title='Chronos', data=chronos_config, 
