@@ -31,15 +31,9 @@
 <div class="container is-widescreen">
     {% for school_year, attrs in data.items() %}
     <section class="section">
-        <details>
-        <summary>
+        <p class="subtitle is-5">
             Promo <a href="{{ attrs.google_calendar_url }}}"><strong>{{ attrs.description }}</strong></a>
-        </summary>
-        <p>
-            Lien du calendrier Google Agenda:
-            <code>{{ attrs.google_calendar_id }}</code>
         </p>
-        </details>
         <nav class="level">
             <div class="level-left">
                 <div class="level-item has-text-justified">
