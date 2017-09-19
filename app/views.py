@@ -24,7 +24,7 @@ def humanize_date(date_str):
         digits of the year.
     """
     date = dt.datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S")    
-    diff = dt.datetime.utcnow() + dt.timedelta(days=nday, hours=2) - date
+    diff = dt.datetime.utcnow() + dt.timedelta(hours=2) - date
 
     if diff.days > 7 or diff.days < 0:
         return date.strftime('%d %b %y')
