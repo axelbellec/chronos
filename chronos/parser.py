@@ -84,7 +84,7 @@ class TimetableParser(object):
 
         update_time_regex = re.compile(r'\d{2}\/\d{2}\/\d{4}\s?\d{2}:\d{2}:\d{2}')
         update_time_str = update_time_regex.findall(soup.find('footer').get_text())[0]
-        update_time_dt = datetime.datetime.strptime(update_time_str, '%d/%m/%Y %H:%M:%S') + datetime.timedelta(hours=2)
+        update_time_dt = datetime.datetime.strptime(update_time_str, '%d/%m/%Y %H:%M:%S')
         self.update_time = str(datetime.datetime.strftime(update_time_dt, '%d/%m/%Y %H:%M:%S'))            
 
         self.save_update_time()
