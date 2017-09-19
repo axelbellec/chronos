@@ -7,8 +7,6 @@ Then they are formated into JSON and sent by batch HTTP requests through Google 
 
 A simple [single page app](http://chronos-edt.herokuapp.com) show updates for each timetable related to a school year.
 
-![chronos.gif](doc/chronos.gif)
-
 You can define different school years in the `config.yml` file:
 ```
 <school_year>:
